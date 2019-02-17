@@ -124,7 +124,7 @@ RUN curl -sL https://www-us.apache.org/dist/maven/maven-3/3.6.0/binaries/apache-
  && rm apache-maven-3.6.0.zip
 ENV ANT_HOME=/usr/share/ant \
     GRADLE_HOME=/usr/share/gradle-4.6 \
-    M2_HOME=/usr/share/apachemaven-3.6.0
+    M2_HOME=/usr/share/apache-maven-3.6.0
 
 # Install ActiveMQ
 RUN curl -sL http://archive.apache.org/dist/activemq/5.15.6/apache-activemq-5.15.6-bin.tar.gz -o apache-activemq-5.15.6.tar.gz \
