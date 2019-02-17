@@ -113,12 +113,7 @@ ENV JAVA_HOME_8_X64=/usr/lib/jvm/java-8-openjdk-amd64 \
     JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 \
     JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
 
-# Install Java Tools (Ant, Gradle, Maven)
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-    ant \
-    ant-optional \
- && rm -rf /var/lib/apt/lists/*
+# Install Gradle and Maven
 RUN curl -sL https://services.gradle.org/distributions/gradle-4.6-bin.zip -o gradle-4.6.zip \
  && unzip -d /usr/share gradle-4.6.zip \
  && ln -s /usr/share/gradle-4.6/bin/gradle /usr/bin/gradle \
