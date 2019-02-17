@@ -144,13 +144,22 @@ RUN apt-get update \
     postgresql \
     postgresql-contrib \
  && rm -rf /var/lib/apt/lists/*
+USER postgres
+RUN /etc/init.d/postgresql start
+USER root
 
-   # Clean system
+# Install Graphviz
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+    graphviz \
+ && rm -rf /var/lib/apt/lists/*
+
+# Clean system
 RUN apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /etc/apt/sources.list.d/*
 
- # PART 3 - Docker --------------------------------------------------------------------------------
+# PART 3 - Docker ---------------------------------------------------------------------------------
 
 ENV DOCKER_CHANNEL stable
 ENV DOCKER_VERSION 17.12.0-ce

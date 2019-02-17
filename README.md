@@ -8,4 +8,8 @@ This repository describes an azure devops build agent dockerfile with following 
 * Maven 3.6.0
 * ActiveMQ 5.15.6
 * Postgres
+* Graphviz
 * Docker 17.12.0-ce
+
+To use this docker image type:
+`docker run jhageste/azure-agent`
