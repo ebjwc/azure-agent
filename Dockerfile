@@ -126,7 +126,6 @@ RUN curl -sL http://archive.apache.org/dist/activemq/5.15.6/apache-activemq-5.15
  && tar -xzf apache-activemq-5.15.6.tar.gz -C /usr/share \
  && ln -s /usr/share/apache-activemq-5.15.6/bin/activemq /usr/bin/activemq \
  && rm apache-activemq-5.15.6.tar.gz
-RUN activemq start
 
 # Install PostgreSQL
 RUN apt-get update \
