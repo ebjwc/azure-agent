@@ -42,11 +42,6 @@ RUN mkdir -p "/root/.microsoft/Team Foundation/4.0/Configuration/TEE-Mementos" \
 
 WORKDIR /vsts
 
-COPY ./scripts/start.sh .
-RUN chmod +x start.sh
-
-CMD ["./start.sh"]
-
 # PART 2 - Libraries ------------------------------------------------------------------------------
 
 # Install basic command-line utilities
@@ -136,11 +131,18 @@ RUN activemq start
 # Install PostgreSQL
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-    postgresql \
-    postgresql-contrib \
+    postgresql-9.5 \
+    postgresql-client-9.5 \
+    postgresql-contrib-9.5 \
+ && ln -s /etc/init.d/postgresql /usr/bin/postgresql \
  && rm -rf /var/lib/apt/lists/*
 USER postgres
-RUN /etc/init.d/postgresql start
+RUN echo configure postgres hosts and ports \
+ && echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/9.5/main/pg_hba.conf \
+ && echo "listen_addresses='*'" >> /etc/postgresql/9.5/main/postgresql.conf
+RUN echo configure postgres password \
+ && postgresql start \
+ && psql --command "ALTER ROLE postgres WITH PASSWORD 'postgres';"
 USER root
 
 # Install Graphviz
@@ -171,3 +173,9 @@ RUN set -x \
  && curl -fSL "https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-`uname -s`-`uname -m`" -o /usr/local/bin/docker-compose \
  && chmod +x /usr/local/bin/docker-compose \
  && docker-compose -v
+
+ # PART 4 - Start ---------------------------------------------------------------------------------
+
+COPY ./scripts/start.sh .
+RUN chmod +x start.sh
+CMD ["./start.sh"]

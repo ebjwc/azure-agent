@@ -1,4 +1,12 @@
 #!/bin/bash
+
+# PART 1 - Start ActiveMQ -------------------------------------------------------------------------
+activemq start
+
+# PART 2 - Start PostgreSQL -----------------------------------------------------------------------
+postgresql start
+
+# PART 2 - Start Agent ----------------------------------------------------------------------------
 set -e
 
 export VSO_AGENT_IGNORE=_,MAIL,OLDPWD,PATH,PWD,VSTS_AGENT,VSTS_ACCOUNT,VSTS_TOKEN_FILE,VSTS_TOKEN,VSTS_POOL,VSTS_WORK,VSO_AGENT_IGNORE
