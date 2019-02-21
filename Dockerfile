@@ -128,20 +128,26 @@ RUN curl -sL http://archive.apache.org/dist/activemq/5.15.6/apache-activemq-5.15
  && rm apache-activemq-5.15.6.tar.gz
 
 # Install PostgreSQL
+COPY ./database/schema.sql .
+RUN curl -L https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
+ && echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" \
+ | tee /etc/apt/sources.list.d/PostgreSQL.list
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-    postgresql-9.5 \
-    postgresql-client-9.5 \
-    postgresql-contrib-9.5 \
+    postgresql-11 \
+    postgresql-client-11 \
+    postgresql-contrib-11 \
  && ln -s /etc/init.d/postgresql /usr/bin/postgresql \
  && rm -rf /var/lib/apt/lists/*
+RUN ls /etc/postgresql
 USER postgres
 RUN echo configure postgres hosts and ports \
- && echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/9.5/main/pg_hba.conf \
- && echo "listen_addresses='*'" >> /etc/postgresql/9.5/main/postgresql.conf
+ && echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/11/main/pg_hba.conf \
+ && echo "listen_addresses='*'" >> /etc/postgresql/11/main/postgresql.conf
 RUN echo configure postgres password \
  && postgresql start \
- && psql --command "ALTER ROLE postgres WITH PASSWORD 'postgres';"
+ && psql --command "ALTER ROLE postgres WITH PASSWORD 'postgres';" \
+ && psql -a -f "schema.sql"
 USER root
 
 # Install Graphviz
