@@ -134,16 +134,19 @@ RUN curl -L https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
  | tee /etc/apt/sources.list.d/PostgreSQL.list
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-    postgresql-11 \
-    postgresql-client-11 \
-    postgresql-contrib-11 \
+    postgresql-10 \
+    postgresql-10-postgis-2.4 \
+    postgresql-10-postgis-scripts \
+    postgresql-client-10 \
+    postgresql-contrib-10 \
+    postgis \
  && ln -s /etc/init.d/postgresql /usr/bin/postgresql \
  && rm -rf /var/lib/apt/lists/*
 RUN ls /etc/postgresql
 USER postgres
 RUN echo configure postgres hosts and ports \
- && echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/11/main/pg_hba.conf \
- && echo "listen_addresses='*'" >> /etc/postgresql/11/main/postgresql.conf
+ && echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/10/main/pg_hba.conf \
+ && echo "listen_addresses='*'" >> /etc/postgresql/10/main/postgresql.conf
 RUN echo configure postgres password \
  && postgresql start \
  && psql --command "ALTER ROLE postgres WITH PASSWORD 'postgres';" \
