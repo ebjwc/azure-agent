@@ -173,15 +173,15 @@ RUN apt-get update \
 # Install Kafka, Zookeeper and Supervisor
 ENV SCALA_VERSION 2.11
 ENV KAFKA_VERSION 2.1.1
-ENV KAFKA_HOME /usr/share/kafka_${SCALA_VERSION}-${KAFKA_VERSION}
+ENV KAFKA_HOME /usr/share/kafka-${SCALA_VERSION}-${KAFKA_VERSION}
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
     zookeeper \
     supervisor \
- && curl -sL http://apache.mirrors.spacedump.net/kafka/${KAFKA_VERSION}/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz -o /kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz \
- && tar xfz /kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz -C /usr/share \
- && rm /kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz
+ && curl -sL http://apache.mirrors.spacedump.net/kafka/${KAFKA_VERSION}/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz -o kafka-${SCALA_VERSION}-${KAFKA_VERSION}.tgz \
+ && tar xfz kafka-${SCALA_VERSION}-${KAFKA_VERSION}.tgz -C /usr/share \
+ && rm kafka-${SCALA_VERSION}-${KAFKA_VERSION}.tgz
 ADD kafka/kafka.sh /usr/bin/kafka.sh
 RUN chmod +x /usr/bin/kafka.sh
 ADD kafka/kafka.conf kafka/zookeeper.conf /etc/supervisor/conf.d/
@@ -215,6 +215,7 @@ ENV activemq true
 ENV postgres true
 ENV gradle true
 ENV graphviz true
+ENV kafka true
 
 # PART 5 - Start ----------------------------------------------------------------------------------
 
