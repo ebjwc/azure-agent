@@ -7,6 +7,7 @@ This repository describes an azure devops build agent dockerfile with following 
 * Maven 3.6.0
 * ActiveMQ 5.15.6
 * PostgreSQL 10
+* Kafka 2.1.1
 * Graphviz
 * Docker 17.12.0-ce
 

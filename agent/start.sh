@@ -10,7 +10,12 @@ echo Starting PostgreSQL...
 postgresql start
 echo Started PostgreSQL
 
-# PART 3 - Start Agent ----------------------------------------------------------------------------
+# PART 3 - Start Kafka ----------------------------------------------------------------------------
+echo Starting Kafka
+supervisord
+echo Started Kafka
+
+# PART 4 - Start Agent ----------------------------------------------------------------------------
 set -e
 
 export VSO_AGENT_IGNORE=_,MAIL,OLDPWD,PATH,PWD,VSTS_AGENT,VSTS_ACCOUNT,VSTS_TOKEN_FILE,VSTS_TOKEN,VSTS_POOL,VSTS_WORK,VSO_AGENT_IGNORE

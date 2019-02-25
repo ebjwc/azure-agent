@@ -99,55 +99,65 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s
  && mv ./kubectl /usr/local/bin/kubectl
 
 # Install Java OpenJDKs
+ENV JDK_VERSION 8
+
 RUN apt-add-repository -y ppa:openjdk-r/ppa
 RUN apt-get update \
- && apt-get install -y --no-install-recommends openjdk-8-jdk \
+ && apt-get install -y --no-install-recommends \
+    openjdk-${JDK_VERSION}-jdk \
  && rm -rf /var/lib/apt/lists/*
-RUN update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
-ENV JAVA_HOME_8_X64=/usr/lib/jvm/java-8-openjdk-amd64 \
-    JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 \
+RUN update-alternatives --set java /usr/lib/jvm/java-${JDK_VERSION}-openjdk-amd64/jre/bin/java
+ENV JAVA_HOME_8_X64=/usr/lib/jvm/java-${JDK_VERSION}-openjdk-amd64 \
+    JAVA_HOME=/usr/lib/jvm/java-${JDK_VERSION}-openjdk-amd64 \
     JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
 
 # Install Gradle and Maven
-RUN curl -sL https://services.gradle.org/distributions/gradle-4.6-bin.zip -o gradle-4.6.zip \
- && unzip -d /usr/share gradle-4.6.zip \
- && ln -s /usr/share/gradle-4.6/bin/gradle /usr/bin/gradle \
- && rm gradle-4.6.zip
-RUN curl -sL https://www-us.apache.org/dist/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.zip -o apache-maven-3.6.0.zip \
- && unzip -d /usr/share apache-maven-3.6.0.zip \
- && ln -s /usr/share/apache-maven-3.6.0/bin/mvn /usr/bin/mvn \
- && rm apache-maven-3.6.0.zip
+ENV GRADLE_VERSION 4.6
+ENV MAVEN_VERSION 3.6.0
+
+RUN curl -sL https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip -o gradle-${GRADLE_VERSION}.zip \
+ && unzip -d /usr/share gradle-${GRADLE_VERSION}.zip \
+ && ln -s /usr/share/gradle-${GRADLE_VERSION}/bin/gradle /usr/bin/gradle \
+ && rm gradle-${GRADLE_VERSION}.zip
+RUN curl -sL https://www-us.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.zip -o apache-maven-${MAVEN_VERSION}.zip \
+ && unzip -d /usr/share apache-maven-${MAVEN_VERSION}.zip \
+ && ln -s /usr/share/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/bin/mvn \
+ && rm apache-maven-${MAVEN_VERSION}.zip
 ENV ANT_HOME=/usr/share/ant \
-    GRADLE_HOME=/usr/share/gradle-4.6 \
-    M2_HOME=/usr/share/apache-maven-3.6.0
+    GRADLE_HOME=/usr/share/gradle-${GRADLE_VERSION} \
+    M2_HOME=/usr/share/apache-maven-${MAVEN_VERSION}
 COPY ./maven/settings-security.xml /root/.m2/settings-security.xml
 
 # Install ActiveMQ
-RUN curl -sL http://archive.apache.org/dist/activemq/5.15.6/apache-activemq-5.15.6-bin.tar.gz -o apache-activemq-5.15.6.tar.gz \
- && tar -xzf apache-activemq-5.15.6.tar.gz -C /usr/share \
- && ln -s /usr/share/apache-activemq-5.15.6/bin/activemq /usr/bin/activemq \
- && rm apache-activemq-5.15.6.tar.gz
+ENV ACTIVEMQ_VERSION 5.15.6
+
+RUN curl -sL http://archive.apache.org/dist/activemq/${ACTIVEMQ_VERSION}/apache-activemq-${ACTIVEMQ_VERSION}-bin.tar.gz -o apache-activemq-${ACTIVEMQ_VERSION}.tar.gz \
+ && tar -xzf apache-activemq-${ACTIVEMQ_VERSION}.tar.gz -C /usr/share \
+ && ln -s /usr/share/apache-activemq-${ACTIVEMQ_VERSION}/bin/activemq /usr/bin/activemq \
+ && rm apache-activemq-${ACTIVEMQ_VERSION}.tar.gz
 
 # Install PostgreSQL
-COPY ./database/schema.sql .
+ENV POSTGRES_VERSION 10
+
+COPY ./postgres/schema.sql .
 RUN curl -L https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
  && echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" \
  | tee /etc/apt/sources.list.d/PostgreSQL.list
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-    postgresql-10 \
-    postgresql-10-postgis-2.4 \
-    postgresql-10-postgis-scripts \
-    postgresql-client-10 \
-    postgresql-contrib-10 \
+    postgresql-${POSTGRES_VERSION} \
+    postgresql-${POSTGRES_VERSION}-postgis-2.4 \
+    postgresql-${POSTGRES_VERSION}-postgis-scripts \
+    postgresql-client-${POSTGRES_VERSION} \
+    postgresql-contrib-${POSTGRES_VERSION} \
     postgis \
  && ln -s /etc/init.d/postgresql /usr/bin/postgresql \
  && rm -rf /var/lib/apt/lists/*
 RUN ls /etc/postgresql
 USER postgres
 RUN echo configure postgres hosts and ports \
- && echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/10/main/pg_hba.conf \
- && echo "listen_addresses='*'" >> /etc/postgresql/10/main/postgresql.conf
+ && echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/${POSTGRES_VERSION}/main/pg_hba.conf \
+ && echo "listen_addresses='*'" >> /etc/postgresql/${POSTGRES_VERSION}/main/postgresql.conf
 RUN echo configure postgres password \
  && postgresql start \
  && psql --command "ALTER ROLE postgres WITH PASSWORD 'postgres';" \
@@ -160,6 +170,22 @@ RUN apt-get update \
     graphviz \
  && rm -rf /var/lib/apt/lists/*
 
+# Install Kafka, Zookeeper and Supervisor
+ENV SCALA_VERSION 2.11
+ENV KAFKA_VERSION 2.1.1
+ENV KAFKA_HOME /usr/share/kafka_${SCALA_VERSION}-${KAFKA_VERSION}
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+    zookeeper \
+    supervisor \
+ && curl -sL http://apache.mirrors.spacedump.net/kafka/${KAFKA_VERSION}/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz -o /kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz \
+ && tar xfz /kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz -C /usr/share \
+ && rm /kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz
+ADD kafka/kafka.sh /usr/bin/kafka.sh
+RUN chmod +x /usr/bin/kafka.sh
+ADD kafka/kafka.conf kafka/zookeeper.conf /etc/supervisor/conf.d/
+
 # Clean system
 RUN apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
@@ -171,7 +197,7 @@ ENV DOCKER_CHANNEL stable
 ENV DOCKER_VERSION 17.12.0-ce
 
 RUN set -ex \
- && curl -fL "https://download.docker.com/linux/static/${DOCKER_CHANNEL}/`uname -m`/docker-${DOCKER_VERSION}.tgz" -o docker.tgz \
+ && curl -fL "https://download.docker.com/linux/static/$DOCKER_CHANNEL/`uname -m`/docker-$DOCKER_VERSION.tgz" -o docker.tgz \
  && tar --extract --file docker.tgz --strip-components 1 --directory /usr/local/bin \
  && rm docker.tgz \
  && docker -v
@@ -192,6 +218,6 @@ ENV graphviz true
 
 # PART 5 - Start ----------------------------------------------------------------------------------
 
-COPY ./scripts/start.sh .
+COPY ./agent/start.sh .
 RUN chmod +x start.sh
 CMD ["./start.sh"]
