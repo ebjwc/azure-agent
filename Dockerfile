@@ -120,6 +120,7 @@ RUN curl -sL https://www-us.apache.org/dist/maven/maven-3/3.6.0/binaries/apache-
 ENV ANT_HOME=/usr/share/ant \
     GRADLE_HOME=/usr/share/gradle-4.6 \
     M2_HOME=/usr/share/apache-maven-3.6.0
+COPY ./maven/settings-security.xml /root/.m2/settings-security.xml
 
 # Install ActiveMQ
 RUN curl -sL http://archive.apache.org/dist/activemq/5.15.6/apache-activemq-5.15.6-bin.tar.gz -o apache-activemq-5.15.6.tar.gz \
@@ -182,7 +183,14 @@ RUN set -x \
  && chmod +x /usr/local/bin/docker-compose \
  && docker-compose -v
 
- # PART 4 - Start ---------------------------------------------------------------------------------
+# PART 4 - Capabilities ---------------------------------------------------------------------------
+
+ENV activemq true
+ENV postgres true
+ENV gradle true
+ENV graphviz true
+
+# PART 5 - Start ----------------------------------------------------------------------------------
 
 COPY ./scripts/start.sh .
 RUN chmod +x start.sh
