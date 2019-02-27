@@ -217,7 +217,11 @@ ENV gradle true
 ENV graphviz true
 ENV kafka true
 
-# PART 5 - Start ----------------------------------------------------------------------------------
+# PART 5 - Variables ------------------------------------------------------------------------------
+
+ENV NODE_TLS_REJECT_UNAUTHORIZED 0
+
+# PART 6 - Start ----------------------------------------------------------------------------------
 
 COPY ./agent/start.sh .
 RUN chmod +x start.sh
