@@ -146,21 +146,19 @@ RUN curl -L https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
     postgresql-${POSTGRES_VERSION} \
-    postgresql-${POSTGRES_VERSION}-postgis-2.4 \
+    postgresql-${POSTGRES_VERSION}-postgis-2.5 \
     postgresql-${POSTGRES_VERSION}-postgis-scripts \
     postgresql-client-${POSTGRES_VERSION} \
     postgresql-contrib-${POSTGRES_VERSION} \
-    postgis \
  && ln -s /etc/init.d/postgresql /usr/bin/postgresql \
  && rm -rf /var/lib/apt/lists/*
-RUN ls /etc/postgresql
 USER postgres
-RUN echo configure postgres hosts and ports \
- && echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/${POSTGRES_VERSION}/main/pg_hba.conf \
- && echo "listen_addresses='*'" >> /etc/postgresql/${POSTGRES_VERSION}/main/postgresql.conf
+COPY ./postgres/pg_hba.conf /etc/postgresql/${POSTGRES_VERSION}/main/pg_hba.conf
+COPY ./postgres/postgresql.conf /etc/postgresql/${POSTGRES_VERSION}/main/postgresql.conf
 RUN echo configure postgres password \
  && postgresql start \
  && psql --command "ALTER ROLE postgres WITH PASSWORD 'postgres';" \
+ && psql --command "CREATE EXTENSION postgis;" \
  && psql -a -f "schema.sql"
 USER root
 
