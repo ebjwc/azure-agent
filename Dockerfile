@@ -64,6 +64,7 @@ RUN apt-get update \
     wget \
     zip \
     tzdata \
+    autoconf \
  && rm -rf /var/lib/apt/lists/*
 
 # Setup the locale
